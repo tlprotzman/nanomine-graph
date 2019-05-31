@@ -47,3 +47,61 @@ class XMLIngestTest(WhyisTestCase):
         nanocomposites = list(self.app.db.subjects(RDF.type,URIRef("http://nanomine.org/ns/PolymerNanocomposite")))
         print nanocomposites, len(self.app.db)
         self.assertEquals(len(nanocomposites),1)
+        print("Correct Number of Nanocomposites")
+	
+	print("\n\nauthors")
+	authors = self.app.db.query(
+	"""SELECT ?name 
+	WHERE {
+		<http://dx.doi.org/10.1016/j.jeurceramsoc.2007.02.082> <http://purl.org/dc/terms/creator> ?author .
+		?author <http://xmlns.com/foaf/0.1/name> ?name .
+	}
+	"""
+	)
+	for author in authors:
+		print(author)
+	self.assertEquals(len(authors), 4)
+        print("Correct Number of Authors")
+
+	languages = list(self.app.db.objects(URIRef("http://dx.doi.org/10.1016/j.jeurceramsoc.2007.02.082"), URIRef("http://purl.org/dc/terms/language")))
+	print("\n\nLanguage")
+	processed_langs = [language.n3() for language in languages]
+	print(processed_langs)
+	self.assertTrue(u'<http://nanomine.org/language/english>' in processed_langs)
+        print("Correct Language")
+
+	print("\n\nKeywords")
+	keywords_lst = list(self.app.db.objects(URIRef("http://dx.doi.org/10.1016/j.jeurceramsoc.2007.02.082"), URIRef("http://www.w3.org/ns/dcat#keyword")))
+	keywords = [keyword.n3() for keyword in keywords_lst]
+	print(keywords)
+	self.assertEquals(len(keywords), 4)
+        print("Correct Number of Keywords")
+
+        print("\n\nDevices")
+        devices_lst = list(self.app.db.subjects(URIRef("http://www.w3.org/2000/01/rdf-schema#subClassOf"), URIRef("http://semanticscience.org/resource/Device")))
+        devices = [device.n3() for device in devices_lst]
+        print(devices)
+        #  self.assertEquals(len(devices), 3)
+        print("Correct number of Devices")
+        
+        print("\n\nProperties of Cyclo Olefin Copolymer")
+	properties = list(self.app.db.predicate_objects(URIRef("http://nanomine.org/compound/CycloOlefinCopolymer")))
+        for p, o in properties:
+            print(p.n3(), o.n3())
+        print("Correct number of properties")
+
+        print("\n\nMeasurement Values")
+        measurement_lst = list(self.app.db.subject_objects(URIRef("http://semanticscience.org/resource/hasValue")))
+        for source, measurement in measurement_lst:
+            print(source.n3(), measurement.n3())
+        self.assertEqual(len(measurement_lst), 10)
+
+
+
+
+        #  print("Printing SPO Triples")
+        #  for s, p, o in self.app.db.triples((None, None, None)):
+        #      print("<", str(s.n3()), str(p.n3()), str(o.n3()), "> .")
+        
+
+
