@@ -10,5 +10,6 @@
 * Batch testing can be accomplised with `test_runner.py`
   * Run from whyis directory, `python apps/nanomine-graph/tests/test_runner.py <Number of tests to run> <--scramble>`
     * Can specify how many tests to run and if they should be selected randomly
+    * Not giving a number will run tests for all files
   * Uses `test_template.py` as a template, replacing <FILENAME HERE> with the target file
   * Outputs std-err to `/apps/nanomine-graph/tests/output.txt` to allow investigation of failed tests
