@@ -67,7 +67,7 @@ def autoparse(file_under_test):
     tree = ET.parse(temp)
     root = tree.getroot()
     expected_data = dict()
-    expected_data["authors"]    = [elem.text.title() for elem in root.iter("Author")]
+    expected_data["authors"]    = [elem.text for elem in root.iter("Author")]
     expected_data["keywords"]   = [elem.text.title() for elem in root.iter("Keyword")]
     expected_data["DOI"]        = [elem.text.title() for elem in root.iter("DOI")]
     expected_data["language"]   = ["http://nanomine.org/language/" + elem.text.lower()
@@ -171,10 +171,10 @@ def test_properties(runner):
 #     runner.assertEqual(len(unit_pass), 7)
 
 
-
-#     #  print("Printing SPO Triples")
-#     #  for s, p, o in runner.app.db.triples((None, None, None)):
-#     #      print("<", str(s.n3()), str(p.n3()), str(o.n3()), "> .")
+def print_triples(runner):
+     print("Printing SPO Triples")
+     for s, p, o in runner.app.db.triples((None, None, None)):
+         print("<" + str(s.n3()) + " " + str(p.n3()) + " " + str(o.n3()) + "> .")
     
 
 

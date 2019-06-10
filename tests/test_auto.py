@@ -1,7 +1,7 @@
 import ingest_tester
 from testcase import WhyisTestCase
 
-file_under_test = "<FILENAME HERE>"
+file_under_test = "L156_S4_Roy_2007"
 
 class IngestTest(WhyisTestCase):
     first_run = bool()
@@ -31,5 +31,8 @@ class IngestTest(WhyisTestCase):
 
     def test_devices(self):
         ingest_tester.test_devices(self, self.expected_data["equipment"])
+
+    def test_print_triples(self):
+        ingest_tester.print_triples(self)
 
 
