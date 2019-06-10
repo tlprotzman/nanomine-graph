@@ -1,5 +1,4 @@
 import ingest_test_template
-
 from testcase import WhyisTestCase
 
 class L102Test(WhyisTestCase):
