@@ -8,6 +8,8 @@ from flask_testing import TestCase
 from StringIO import StringIO
 import nanopub
 import autonomic
+import xml.etree.ElementTree as ET
+
 files = {
     "template" : '''<replace> a <http://nanomine.org/ns/NanomineXMLFile>,
         <http://schema.org/DataDownload>,
@@ -53,9 +55,32 @@ def setUp(runner, file_under_test):
 
     temp.close()
 
+def autoparse(file_under_test):
+    # Parses out information from the specified file for verification the the correct data
+    # ends up in the graph
+    r = requests.get('http://nanomine.org/nmr/xml/' + file_under_test + '.xml')
+    j = json.loads(r.text)
+    xml_str = j["data"][0]["xml_str"]
+    temp = tempfile.NamedTemporaryFile()
+    temp.write(xml_str)
+    temp.seek(0)
+    tree = ET.parse(temp)
+    root = tree.getroot()
+    expected_data = dict()
+    expected_data["authors"]    = [elem.text.title() for elem in root.iter("Author")]
+    expected_data["keywords"]   = [elem.text.title() for elem in root.iter("Keyword")]
+    expected_data["DOI"]        = [elem.text.title() for elem in root.iter("DOI")]
+    expected_data["language"]   = ["http://nanomine.org/language/" + elem.text.lower()
+                                   for elem in root.iter("Language")]
+    expected_data["equipment"]  = [elem.text.lower() for elem in root.iter("EquipmentUsed")]
+    expected_data["equipment"] += [elem.text.lower() for elem in root.iter("Equipment")]
+    expected_data["equipment"]  = ["http://nanomine.org/ns/" + elem.replace(" ", "-") 
+                                   for elem in expected_data["equipment"]]
+
+    return expected_data
+
 
 def test_nanocomposites(runner):
-    # Testing
     # Ensure there is a nanocomposite in the graph
     nanocomposites = list(runner.app.db.subjects(RDF.type,URIRef("http://nanomine.org/ns/PolymerNanocomposite")))
     print nanocomposites, len(runner.app.db)
@@ -85,9 +110,9 @@ def test_language(runner, expected_language):
     # Ensure the paper is marked as being in English
     languages = list(runner.app.db.objects(None, URIRef("http://purl.org/dc/terms/language")))
     print("\n\nLanguage")
-    processed_langs = [language.n3() for language in languages]
+    processed_langs = [str(language) for language in languages]
     # print(processed_langs)
-    runner.assertTrue(expected_language in processed_langs)
+    runner.assertItemsEqual(expected_language, processed_langs)
     print("Correct Language")
 
 
