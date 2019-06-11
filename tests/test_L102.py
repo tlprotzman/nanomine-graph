@@ -1,4 +1,4 @@
-import ingest_tester
+from . import ingest_tester
 from testcase import WhyisTestCase
 
 file_under_test = "L102_S3_Hu_2007"

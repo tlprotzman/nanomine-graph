@@ -1,7 +1,7 @@
-from . import ingest_tester
+import ingest_tester
 from testcase import WhyisTestCase
 
-file_under_test = "L112_S2_Tuncer_2006"
+file_under_test = "L219_S9_Bansal_2006"
 
 class IngestTest(WhyisTestCase):
     first_run = bool()
@@ -31,8 +31,5 @@ class IngestTest(WhyisTestCase):
 
     def test_devices(self):
         ingest_tester.test_devices(self, self.expected_data["equipment"])
-
-    def test_print_triples(self):
-        ingest_tester.print_triples(self)
 
 

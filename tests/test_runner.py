@@ -59,11 +59,12 @@ def main(argv):
             print(" PASS")
         os.remove("/apps/nanomine-graph/tests/test_template_active.py")
         if not run_all and tests_ran >= to_run:
-            return tests_ran, tests_failed
+            break
+    return tests_ran, tests_failed
 
 
 if __name__ == "__main__":
     start = time.time()
     tests_ran, tests_failed = main(sys.argv)
     end = time.time()
-    print("{}/{} tests passed in {} seconds".format(tests_ran - tests_failed, tests_ran, end - start))
+    print("{}/{} tests passed in {:.1} seconds".format(tests_ran - tests_failed, tests_ran, end - start))

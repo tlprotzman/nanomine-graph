@@ -5,7 +5,6 @@ import json
 import requests
 import tempfile
 from flask_testing import TestCase
-from StringIO import StringIO
 import nanopub
 import autonomic
 import xml.etree.ElementTree as ET
@@ -49,7 +48,7 @@ def setUp(runner, file_under_test):
 
     setlr = autonomic.SETLr()
 
-    print len(runner.app.db)
+    print(len(runner.app.db))
     for setlr_np in results:
         setlr_results = runner.run_agent(setlr, nanopublication=setlr_np)
 
@@ -77,13 +76,14 @@ def autoparse(file_under_test):
     expected_data["equipment"]  = ["http://nanomine.org/ns/" + elem.replace(" ", "-") 
                                    for elem in expected_data["equipment"]]
 
+    temp.close()
     return expected_data
 
 
 def test_nanocomposites(runner):
     # Ensure there is a nanocomposite in the graph
     nanocomposites = list(runner.app.db.subjects(RDF.type,URIRef("http://nanomine.org/ns/PolymerNanocomposite")))
-    print nanocomposites, len(runner.app.db)
+    print(nanocomposites, len(runner.app.db))
     runner.assertEquals(len(nanocomposites),1)
     print("Correct Number of Nanocomposites")
 
