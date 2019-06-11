@@ -8,6 +8,7 @@ from flask_testing import TestCase
 import nanopub
 import autonomic
 import xml.etree.ElementTree as ET
+import io
 
 files = {
     "template" : '''<replace> a <http://nanomine.org/ns/NanomineXMLFile>,
@@ -24,7 +25,7 @@ def setUp(runner, file_under_test):
     j = json.loads(r.text)
     xml_str = j["data"][0]["xml_str"]
     temp = tempfile.NamedTemporaryFile()
-    temp.write(xml_str)
+    temp.write(xml_str.encode("utf-8"))
     temp.seek(0)
     
     files[file_under_test] = files["template"].replace("replace", temp.name)
@@ -61,7 +62,7 @@ def autoparse(file_under_test):
     j = json.loads(r.text)
     xml_str = j["data"][0]["xml_str"]
     temp = tempfile.NamedTemporaryFile()
-    temp.write(xml_str)
+    temp.write(xml_str.encode('utf-8'))
     temp.seek(0)
     tree = ET.parse(temp)
     root = tree.getroot()
@@ -102,7 +103,7 @@ def test_authors(runner, expected_authors):
     # for author in authors:
         # print(author)
     authors = [str(author[0]) for author in authors]
-    runner.assertItemsEqual(expected_authors, authors)
+    runner.assertCountEqual(expected_authors, authors)
     print("Expected Authors Found")
 
 
@@ -111,8 +112,8 @@ def test_language(runner, expected_language):
     languages = list(runner.app.db.objects(None, URIRef("http://purl.org/dc/terms/language")))
     print("\n\nLanguage")
     processed_langs = [str(language) for language in languages]
-    # print(processed_langs)
-    runner.assertItemsEqual(expected_language, processed_langs)
+    print(processed_langs)
+    runner.assertCountEqual(expected_language, processed_langs)
     print("Correct Language")
 
 
@@ -122,7 +123,7 @@ def test_keywords(runner, expected_keywords):
     keywords_lst = list(runner.app.db.objects(None, URIRef("http://www.w3.org/ns/dcat#keyword")))
     keywords = [str(keyword) for keyword in keywords_lst]
     # print(keywords)
-    runner.assertItemsEqual(expected_keywords, keywords)
+    runner.assertCountEqual(expected_keywords, keywords)
     print("Expected Keywords Found")
 
 
@@ -131,7 +132,7 @@ def test_devices(runner, expected_devices):
     print("\n\nDevices")
     devices_lst = list(runner.app.db.subjects(URIRef("http://www.w3.org/2000/01/rdf-schema#subClassOf"), URIRef("http://semanticscience.org/resource/Device")))
     devices_lst = [str(device) for device in devices_lst]    
-    runner.assertItemsEqual(expected_devices, devices_lst)
+    runner.assertCountEqual(expected_devices, devices_lst)
     print("Expected Devices Found")
     
 
