@@ -1,15 +1,17 @@
 from . import ingest_tester
 from testcase import WhyisTestCase
 
-file_under_test = "L112_S2_Tuncer_2006"
+file_under_test = "L168_S4_Luo_2013"
 
 class IngestTest(WhyisTestCase):
     create_app_once = True
     first_run = bool()
+    
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
         IngestTest.first_run = True
+        cls.maxDiff = None
         cls.expected_data = ingest_tester.autoparse(file_under_test)
 
     def setUp(self):
@@ -32,6 +34,9 @@ class IngestTest(WhyisTestCase):
 
     def test_devices(self):
         ingest_tester.test_devices(self, self.expected_data["equipment"])
+
+    def test_values(self):
+        ingest_tester.test_devices(self, self.expected_data["values"])
 
     def test_print_triples(self):
         ingest_tester.print_triples(self)
