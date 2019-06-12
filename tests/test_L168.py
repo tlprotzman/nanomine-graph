@@ -1,4 +1,4 @@
-import ingest_tester
+from . import ingest_tester
 from testcase import WhyisTestCase
 
 file_under_test = "L168_S4_Luo_2013"
@@ -8,13 +8,9 @@ class L168Test(WhyisTestCase):
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
-        L168Test.first_run = True
         cls.expected_data = ingest_tester.autoparse(file_under_test)
 
     def setUp(self):
-        if not L168Test.first_run:
-            return
-        L168Test.first_run = False
         ingest_tester.setUp(self, file_under_test)
 
     def test_nanocomposites(self):

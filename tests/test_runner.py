@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import time
 import random
@@ -41,9 +42,7 @@ def main(argv):
         test_text = test_text.replace("<FILENAME HERE>", uri)
         with open("/apps/nanomine-graph/tests/test_template_active.py", "w") as f:
             f.write(test_text)
-        _, std_out, std_err = os.popen3("/apps/whyis/venv/bin/python manage.py test --test=test_template_active")
-        std_out = std_out.read()
-        std_err = std_err.read()
+        std_err = subprocess.run(["/apps/whyis/venv/bin/python", "manage.py", "test", "--test=test_template_active"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr.decode("utf-8")
         if "FAILED" in std_err:
             print(" FAIL")
             tests_failed += 1
@@ -67,4 +66,4 @@ if __name__ == "__main__":
     start = time.time()
     tests_ran, tests_failed = main(sys.argv)
     end = time.time()
-    print("{}/{} tests passed in {:.1} seconds".format(tests_ran - tests_failed, tests_ran, end - start))
+    print("{}/{} tests passed in {:.1f} seconds".format(tests_ran - tests_failed, tests_ran, end - start))

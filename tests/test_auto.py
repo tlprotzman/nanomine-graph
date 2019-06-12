@@ -8,13 +8,9 @@ class IngestTest(WhyisTestCase):
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
-        IngestTest.first_run = True
         cls.expected_data = ingest_tester.autoparse(file_under_test)
 
     def setUp(self):
-        if not IngestTest.first_run:
-            return
-        IngestTest.first_run = False
         ingest_tester.setUp(self, file_under_test)
         
     def test_nanocomposites(self):
