@@ -8,6 +8,7 @@ class IngestTest(WhyisTestCase):
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
+        cls.maxDiff = None
         cls.expected_data = ingest_tester.autoparse(file_under_test)
 
     def setUp(self):

@@ -4,10 +4,10 @@ from testcase import WhyisTestCase
 file_under_test = "L168_S4_Luo_2013"
 
 class L168Test(WhyisTestCase):
-    first_run = bool()
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
+        cls.maxDiff = None
         cls.expected_data = ingest_tester.autoparse(file_under_test)
 
     def setUp(self):
