@@ -4,14 +4,18 @@ from testcase import WhyisTestCase
 file_under_test = "L102_S3_Hu_2007"
 
 class L102Test(WhyisTestCase):
+    create_app_once = True
     first_run = bool()
-    data = object()
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
+        L102Test.first_run = True
         cls.expected_data = ingest_tester.autoparse(file_under_test)
 
     def setUp(self):
+        if not L102Test.first_run:
+            return
+        L102Test.first_run = False
         ingest_tester.setUp(self, file_under_test)
         
     def test_nanocomposites(self):

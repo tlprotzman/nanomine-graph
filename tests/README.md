@@ -1,4 +1,6 @@
 # Nanomine Testing
+**Note: This branch relies on using** http://github.com/tlprotzman/flask-testing **for the addition of the single app creating feature**
+
 * To write a custom test file, look at `test_L102.py` and `test_L168.py` as templates and modify as needed
 * The autoparser currently allows for automatic testing of the following categories:
   * PNC Present
