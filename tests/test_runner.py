@@ -37,13 +37,13 @@ def main(argv):
         sys.stdout.write(uri + "...")
         tests_ran += 1
         test_text = str()
-        with open("/apps/nanomine-graph/tests/test_template.py", "r") as f:
+        with open("/apps/nanomine-graph/tests/test_auto.py", "r") as f:
             test_text = f.read()
         test_text = test_text.replace("<FILENAME HERE>", uri)
-        with open("/apps/nanomine-graph/tests/test_template_active.py", "w") as f:
+        with open("/apps/nanomine-graph/tests/test_auto_active.py", "w") as f:
             f.write(test_text)
-        std_err = subprocess.run(["/apps/whyis/venv/bin/python", "manage.py", "test", "--test=test_template_active"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr.decode("utf-8")
-        if "FAILED" in std_err:
+        std_err = subprocess.run(["/apps/whyis/venv/bin/python", "manage.py", "test", "--test=test_auto_active"], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE).stderr.decode("utf-8")
+        if "FAILED" in std_err or "ERROR" in std_err:   # We want to catch any tests that fail or error to investigate them
             print(" FAIL")
             tests_failed += 1
             with open("/apps/nanomine-graph/tests/output.txt", "a") as outfile:
@@ -56,7 +56,7 @@ def main(argv):
                 outfile.write("\n\n\n")
         else:
             print(" PASS")
-        os.remove("/apps/nanomine-graph/tests/test_template_active.py")
+        os.remove("/apps/nanomine-graph/tests/test_auto_active.py")
         if not run_all and tests_ran >= to_run:
             break
     return tests_ran, tests_failed

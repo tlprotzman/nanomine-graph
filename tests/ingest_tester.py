@@ -76,12 +76,26 @@ def autoparse(file_under_test):
                                    for elem in common_fields.iter("Language")]
     expected_data["journ_vol"]  = [Literal(int(val.text)) for val in common_fields.iter("Volume")]
 
+    # Matrix Data
+    matrix_data = next(root.iter("Matrix"))
+    expected_data["m_name"]     = [Literal(elem.text.lower()) for elem in matrix_data.iter("ChemicalName")]
+    expected_data["m_trd_name"] = [Literal(elem.text.lower()) for elem in matrix_data.iter("TradeName")]
+
+    # Filler data
+    filler_data = next(root.iter("Filler"))
+    expected_data["f_name"]     = [Literal(elem.text.lower()) for elem in filler_data.iter("ChemicalName")]
+    expected_data["f_trd_name"] = [Literal(elem.text.lower()) for elem in filler_data.iter("TradeName")]
+
     # Other Data
     expected_data["equipment"]  = [elem.text.lower() for elem in root.iter("EquipmentUsed")]
     expected_data["equipment"] += [elem.text.lower() for elem in root.iter("Equipment")]
     expected_data["equipment"]  = ["http://nanomine.org/ns/" + elem.replace(" ", "-") 
                                    for elem in expected_data["equipment"]]
-    expected_data["values"]     = [Literal(val.text, datatype=XSD.string) for val in root.iter("value")]
+    expected_data["values"]     = [Literal(val.text, datatype=XSD.double) for val in root.iter("value")]
+
+    expected_data["temps"]      = []
+    for node in root.iter("Temperature"):
+        expected_data["temps"] += [Literal(val.text, datatype=XSD.double) for val in node.iter("value")]
 
     temp.close()
     return expected_data
@@ -95,7 +109,7 @@ def test_nanocomposites(runner):
     print("Correct Number of Nanocomposites")
 
 
-def test_authors(runner, expected_authors):
+def test_authors(runner, expected_authors=None):
     # Ensure that the proper number of authors are in the graph
     print("\n\nauthors")
     authors = runner.app.db.query(
@@ -109,48 +123,48 @@ def test_authors(runner, expected_authors):
     # for author in authors:
         # print(author)
     authors = [str(author[0]) for author in authors]
+    if expected_authors is None:
+        expected_authors = runner.expected_data["authors"]
     runner.assertCountEqual(expected_authors, authors)
     print("Expected Authors Found")
 
 
-def test_language(runner, expected_language):
+def test_language(runner, expected_language=None):
     # Ensure the paper is marked as being in English
     languages = list(runner.app.db.objects(None, URIRef("http://purl.org/dc/terms/language")))
     print("\n\nLanguage")
     processed_langs = [str(language) for language in languages]
-    print(processed_langs)
+    # print(processed_langs)
+    if expected_language is None:
+        expected_language = runner.expected_data["language"]
     runner.assertCountEqual(expected_language, processed_langs)
     print("Correct Language")
 
 
-def test_keywords(runner, expected_keywords):
+def test_keywords(runner, expected_keywords=None):
     # Check how many keywords exist
     print("\n\nKeywords")
     keywords_lst = list(runner.app.db.objects(None, URIRef("http://www.w3.org/ns/dcat#keyword")))
     keywords = [str(keyword) for keyword in keywords_lst]
     # print(keywords)
+    if expected_keywords is None:
+        expected_keywords = runner.expected_data["keywords"]
     runner.assertCountEqual(expected_keywords, keywords)
     print("Expected Keywords Found")
 
 
-def test_devices(runner, expected_devices):
+def test_devices(runner, expected_devices=None):
     # Check if all used devices are showing up
     print("\n\nDevices")
     devices_lst = list(runner.app.db.subjects(URIRef("http://www.w3.org/2000/01/rdf-schema#subClassOf"), URIRef("http://semanticscience.org/resource/Device")))
-    devices_lst = [str(device) for device in devices_lst]    
+    devices_lst = [str(device) for device in devices_lst] 
+    if expected_devices is None:
+        expected_devices = runner.expected_data["equipment"]   
     runner.assertCountEqual(expected_devices, devices_lst)
     print("Expected Devices Found")
     
 
-# def test_properties(runner):
-#     # Check how many properties are shown
-#      print("\n\nProperties of Cyclo Olefin Copolymer")
-#      properties = list(runner.app.db.predicate_objects(URIRef("http://nanomine.org/compound/CycloOlefinCopolymer")))
-#      for p, o in properties:
-#          print(p.n3(), o.n3())
-#      print("Correct number of properties")
-
-def test_volume(runner, expected_volume):
+def test_volume(runner, expected_volume=None):
     # Checks the volume of the journal
     print("Journal Volume")
     volume = runner.app.db.query(
@@ -163,39 +177,99 @@ def test_volume(runner, expected_volume):
     """
     )
     volume = [vol[0] for vol in volume]
-
+    if expected_volume is None:
+        expected_volume = runner.expected_data["journ_vol"]
     runner.assertCountEqual(expected_volume, volume)
     print("Expected Journal Volume Found")
 
 
+def test_matrix_chemical_names(runner, expected_names=None):
+    # Check if the names of the chemicals are present
+    print("\n\nMatrix Chemical Names")
+    names = runner.app.db.query(
+    """
+    SELECT ?chemName WHERE {
+        ?matrix <http://semanticscience.org/resource/hasRole> ?bnode .
+        ?matrix a ?chemURI .
+        ?bnode a <http://nanomine.org/ns/Matrix> .
+        ?chemURI <http://www.w3.org/2000/01/rdf-schema#label> ?chemName .
+    }
+    """
+    )
+    names = [name[0] for name in names]
+    if expected_names  is None:
+        expected_names = runner.expected_data["m_name"]
+    runner.assertCountEqual(expected_names, names)
+    print("Expected Matrix Chemical Names found")
 
-def test_values(runner, expected_values):
-    # Check how many values are given
-    print("\n\nMeasurement Values")
-    values = list(runner.app.db.objects(None, URIRef("http://semanticscience.org/resource/hasValue")))
-    for measurement in values:
-        print(measurement)
-    runner.assertCountEqual(expected_values, values)
-    print("Expected Values Found")
+
+def test_matrix_trade_names(runner, expected_names=None):
+    # Check if the names of the chemicals are present
+    print("\n\nMatrix Chemical Names")
+    names = runner.app.db.query(
+    """
+    SELECT ?tradeName WHERE {
+        ?matrix <http://semanticscience.org/resource/hasRole> ?bnode .
+        ?matrix a ?chemURI .
+        ?bnode a <http://nanomine.org/ns/Matrix> .
+        ?chemURI <http://nanomine.org/ns/TradeName> ?tradeName .
+    }
+    """
+    )
+    names = [name[0] for name in names]
+    if expected_names  is None:
+        expected_names = runner.expected_data["m_trd_name"]
+    runner.assertCountEqual(expected_names, names)
+    print("Expected Matrix Chemical Trade Names found")  
 
 
-# def test_units(runner):
-#     # Check if enough units are present
-#     print("\n\nChecking if temperature and density have units")
-#     unit_pass = runner.app.db.query(
-#     """
-#     SELECT ?value ?what 
-#     WHERE { 
-#         <http://nanomine.org/sample/l102-s3-hu-2007_filler_0> <http://semanticscience.org/resource/hasAttribute> ?attr . 
-#         ?attr <http://semanticscience.org/resource/hasValue> ?value .
-#         ?attr a ?what .
-#     }
-#     """)
+def test_filler_chemical_names(runner, expected_names=None):
+    # Check if the names of the chemicals are present
+    print("\n\nFiller Chemical Names")
+    names = runner.app.db.query(
+    """
+    SELECT ?chemName WHERE {
+        ?Filler <http://semanticscience.org/resource/hasRole> ?bnode .
+        ?Filler a ?chemURI .
+        ?bnode a <http://nanomine.org/ns/Filler> .
+        ?chemURI <http://www.w3.org/2000/01/rdf-schema#label> ?chemName .
+    }
+    """
+    )
+    names = [name[0] for name in names]
+    if expected_names  is None:
+        expected_names = runner.expected_data["f_name"]
+    runner.assertCountEqual(expected_names, names)
+    print("Expected Filler Chemical Names found")
 
-#     # for attribute in unit_pass:
-#         # print(attribute)
-#     runner.assertEqual(len(unit_pass), 7)
 
+def test_filler_trade_names(runner, expected_names=None):
+    # Check if the names of the chemicals are present
+    print("\n\nFiller Chemical Names")
+    names = runner.app.db.query(
+    """
+    SELECT ?tradeName WHERE {
+        ?Filler <http://semanticscience.org/resource/hasRole> ?bnode .
+        ?Filler a ?chemURI .
+        ?bnode a <http://nanomine.org/ns/Filler> .
+        ?chemURI <http://nanomine.org/ns/TradeName> ?tradeName .
+    }
+    """
+    )
+    names = [name[0] for name in names]
+    if expected_names  is None:
+        expected_names = runner.expected_data["f_trd_name"]
+    runner.assertCountEqual(expected_names, names)
+    print("Expected Filler Chemical Trade Names found")   
+
+
+def test_temperatures(runner, expected_temperatures=None):
+    print("Checking if the expected temperatures are present")
+    temperatures = list(runner.app.db.objects(None, URIRef("http://purl.obolibrary.org/obo/PATO_0000146")))
+    if expected_temperatures is None:
+        expected_temperatures = runner.expected_data["temps"]
+    runner.assertCountEqual(expected_temperatures, temperatures)
+    print("Expected Temperatures Found")
 
 def print_triples(runner):
      print("Printing SPO Triples")

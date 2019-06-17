@@ -1,17 +1,16 @@
 from . import ingest_tester
 from testcase import WhyisTestCase
 
-file_under_test = "<FILENAME HERE>"
 
 class IngestTest(WhyisTestCase):
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
         cls.maxDiff = None
-        cls.expected_data = ingest_tester.autoparse(file_under_test)
+        cls.expected_data = ingest_tester.autoparse(cls.file_under_test)
 
     def setUp(self):
-        ingest_tester.setUp(self, file_under_test)
+        ingest_tester.setUp(self, self.file_under_test)
         
     def test_nanocomposites(self):
         ingest_tester.test_nanocomposites(self)
@@ -27,5 +26,23 @@ class IngestTest(WhyisTestCase):
 
     def test_devices(self):
         ingest_tester.test_devices(self, self.expected_data["equipment"])
+
+    def test_volume(self):
+        ingest_tester.test_volume(self, self.expected_data["journ_vol"])
+
+    def test_matrix_chemical_names(self):
+        ingest_tester.test_matrix_chemical_names(self)
+
+    def test_matrix_trade_names(self):
+        ingest_tester.test_matrix_trade_names(self)
+
+    def test_filler_chemical_names(self):
+        ingest_tester.test_filler_chemical_names(self)
+
+    def test_filler_trade_names(self):
+        ingest_tester.test_filler_trade_names(self)
+
+    def test_temperatuers(self):
+        ingest_tester.test_temperatures(self)
 
 

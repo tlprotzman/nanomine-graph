@@ -1,20 +1,14 @@
 from . import ingest_tester
+from . import test_template
 from testcase import WhyisTestCase
 
 file_under_test = "L168_S4_Luo_2013"
 
-class L168Test(WhyisTestCase):
+class L168Test(test_template.IngestTest):
     @classmethod
     def setUpClass(cls):
-        print("Setting Up Class")
-        cls.maxDiff = None
-        cls.expected_data = ingest_tester.autoparse(file_under_test)
-
-    def setUp(self):
-        ingest_tester.setUp(self, file_under_test)
-
-    def test_nanocomposites(self):
-        ingest_tester.test_nanocomposites(self)
+        cls.file_under_test = file_under_test
+        super().setUpClass()
 
     def test_authors(self):
         expected_authors = ["Luo, Suibin", 
@@ -22,11 +16,11 @@ class L168Test(WhyisTestCase):
                             "Sun, Rong",
                             "Wong, Ching-Ping"]
         ingest_tester.test_authors(self, expected_authors)
-        ingest_tester.test_authors(self, self.expected_data["authors"])
+        ingest_tester.test_authors(self)
 
     def test_language(self):
         ingest_tester.test_language(self, ["http://nanomine.org/language/english"])
-        ingest_tester.test_language(self, self.expected_data["language"])
+        ingest_tester.test_language(self)
 
     def test_keywords(self):
         expected_keywords = ["Ag-Deposited Batio3",
@@ -34,7 +28,7 @@ class L168Test(WhyisTestCase):
                              "Polymer Matrix",
                              "Dielectric Composites"]
         ingest_tester.test_keywords(self, expected_keywords)
-        ingest_tester.test_keywords(self, self.expected_data["keywords"])
+        ingest_tester.test_keywords(self)
 
     def test_devices(self):
         expected_devices = ["http://nanomine.org/ns/cs9912bx",
@@ -43,5 +37,5 @@ class L168Test(WhyisTestCase):
                             "http://nanomine.org/ns/fei-nova-nanosem450",
                             "http://nanomine.org/ns/fei-tecnai-spirit"]
         ingest_tester.test_devices(self, expected_devices)
-        ingest_tester.test_devices(self, self.expected_data["equipment"])
+        ingest_tester.test_devices(self)
 
