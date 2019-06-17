@@ -4,7 +4,7 @@ from testcase import WhyisTestCase
 import rdflib
 
 
-class L102Test(test_template.IngestTest):
+class L102Test(test_template.IngestTestSetup):
     @classmethod
     def setUpClass(cls):
         cls.file_under_test = "L102_S3_Hu_2007"

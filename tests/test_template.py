@@ -2,7 +2,7 @@ from . import ingest_tester
 from testcase import WhyisTestCase
 
 
-class IngestTest(WhyisTestCase):
+class IngestTestSetup(WhyisTestCase):
     @classmethod
     def setUpClass(cls):
         print("Setting Up Class")
@@ -11,7 +11,8 @@ class IngestTest(WhyisTestCase):
 
     def setUp(self):
         ingest_tester.setUp(self, self.file_under_test)
-        
+
+class IngestTestTests(IngestTestSetup):  
     def test_nanocomposites(self):
         ingest_tester.test_nanocomposites(self)
 

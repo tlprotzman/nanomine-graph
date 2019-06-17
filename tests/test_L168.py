@@ -4,7 +4,7 @@ from testcase import WhyisTestCase
 
 file_under_test = "L168_S4_Luo_2013"
 
-class L168Test(test_template.IngestTest):
+class L168Test(test_template.IngestTestSetup):
     @classmethod
     def setUpClass(cls):
         cls.file_under_test = file_under_test

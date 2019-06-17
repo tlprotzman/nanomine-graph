@@ -4,7 +4,7 @@ from testcase import WhyisTestCase
 
 file_under_test = "<FILENAME HERE>"
 
-class IngestTestRunner(test_template.IngestTest):
+class IngestTestRunner(test_template.IngestTestTests):
     first_run = bool()
     @classmethod
     def setUpClass(cls):
