@@ -78,13 +78,13 @@ def autoparse(file_under_test):
 
     # Matrix Data
     matrix_data = next(root.iter("Matrix"))
-    expected_data["m_name"]     = [Literal(elem.text.lower()) for elem in matrix_data.iter("ChemicalName")]
-    expected_data["m_trd_name"] = [Literal(elem.text.lower()) for elem in matrix_data.iter("TradeName")]
+    expected_data["m_name"]     = [Literal(elem.text) for elem in matrix_data.iter("ChemicalName")]
+    expected_data["m_trd_name"] = [Literal(elem.text) for elem in matrix_data.iter("TradeName")]
 
     # Filler data
     filler_data = next(root.iter("Filler"))
-    expected_data["f_name"]     = [Literal(elem.text.lower()) for elem in filler_data.iter("ChemicalName")]
-    expected_data["f_trd_name"] = [Literal(elem.text.lower()) for elem in filler_data.iter("TradeName")]
+    expected_data["f_name"]     = [Literal(elem.text) for elem in filler_data.iter("ChemicalName")]
+    expected_data["f_trd_name"] = [Literal(elem.text) for elem in filler_data.iter("TradeName")]
 
     # Other Data
     expected_data["equipment"]  = [elem.text.lower() for elem in root.iter("EquipmentUsed")]
