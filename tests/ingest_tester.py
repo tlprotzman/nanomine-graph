@@ -9,6 +9,7 @@ import nanopub
 import autonomic
 import xml.etree.ElementTree as ET
 import io
+import pandas as pd
 
 files = {
     "template" : '''<{}> a <http://nanomine.org/ns/NanomineXMLFile>,
@@ -85,6 +86,24 @@ def autoparse(file_under_test):
     filler_data = next(root.iter("Filler"))
     expected_data["f_name"]     = [Literal(elem.text) for elem in filler_data.iter("ChemicalName")]
     expected_data["f_trd_name"] = [Literal(elem.text) for elem in filler_data.iter("TradeName")]
+
+    # Table data
+    def extract_table_data(data_tag):
+        table = dict()  # Holds the description, headers, and dataframe
+        table["description"] = data_tag.find(".//description").text
+        table["headers"] = [elem.text for elem in data_tag.find(".//headers").iter("column")]
+        data = dict()
+        for i , category in enumerate(table["headers"]):
+            data[category] = data_tag.find(".//rows").findall("row/column[@id='" + str(i) + "']")
+            data[category] = [float(elem.text) for elem in data[category]]
+
+        table["data"] = pd.DataFrame(data)
+        return table
+
+    expected_data["Dielectric_Real_Permittivity"] = [extract_table_data(data) for data in root.iter("Dielectric_Real_Permittivity")]
+    expected_data["Dielectric_Loss_Permittivity"] = [extract_table_data(data) for data in root.iter("Dielectric_Loss_Permittivity")]
+    expected_data["Dielectric_Loss_Tangent"] = [extract_table_data(data) for data in root.iter("Dielectric_Loss_Tangent")]
+    expected_data["ElectricConductivity"] = [extract_table_data(data) for data in root.iter("ElectricConductivity")]
 
     # Other Data
     expected_data["equipment"]  = [elem.text.lower() for elem in root.iter("EquipmentUsed")]
@@ -270,6 +289,32 @@ def test_temperatures(runner, expected_temperatures=None):
         expected_temperatures = runner.expected_data["temps"]
     runner.assertCountEqual(expected_temperatures, temperatures)
     print("Expected Temperatures Found")
+
+
+# def construct_table():
+#     data = runner.app.db.query(
+#     """
+#     SELECT ?p1 ?p2 WHERE {
+#         ?property a {} .
+#         ?property sio:hasAttribute ?p1_bnode
+#         ?p1_bnode a {} .
+#         ?p2_bnode a {} .
+#     }
+#     """
+#     )
+
+
+# def test_dielectric_real_permittivity(runner, expected_data=None):
+#     print("Checking if the Dielectric Real Permittivity Table is as expected")
+#     data = runner.app.db.query(
+#     """
+#     SELECT ?frequency ?lossTangent? WHERE {
+#         ?bnode_freq a <http://nanomine.org/ns/FrequencyHZ> .
+#         ?bnode_loss a <http://nanomine.org/ns/DielectricLossTangent> .
+#     }
+#     """
+#     )
+
 
 def print_triples(runner):
      print("Printing SPO Triples")

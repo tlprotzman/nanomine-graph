@@ -29,3 +29,6 @@
   * `test_template.IngestTestSetup` if you only want the setup and do not want to run all the automatic tests
   * `test_template.IngestTestTests` if you want to inherit all the automatic tests in addition to any custom tests
 * Tests are executed with `/apps/whyis/venv/bin/python /apps/whyis/manage.py test --test=desired_test`, substituting `desired_test` with the test you wish to run omitting the file
+
+## Potentially Missing Properties
+* dielectricRealPermittivity
