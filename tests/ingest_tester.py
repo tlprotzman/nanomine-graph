@@ -81,14 +81,45 @@ def autoparse(file_under_test):
     matrix_data = next(root.iter("Matrix"))
     expected_data["m_name"]     = [Literal(elem.text) for elem in matrix_data.iter("ChemicalName")]
     expected_data["m_trd_name"] = [Literal(elem.text) for elem in matrix_data.iter("TradeName")]
+    expected_data["abbrev"]     = [Literal(elem.text) for elem in matrix_data.iter("Abbreviation")]
+    expected_data["manufac"]    = [Literal(elem.text) for elem in matrix_data.iter("ManufacturerOrSourceName")]
 
     # Filler data
     filler_data = next(root.iter("Filler"))
     expected_data["f_name"]     = [Literal(elem.text) for elem in filler_data.iter("ChemicalName")]
     expected_data["f_trd_name"] = [Literal(elem.text) for elem in filler_data.iter("TradeName")]
+    expected_data["abbrev"]    += [Literal(elem.text) for elem in filler_data.iter("Abbreviation")]
+    expected_data["manufac"]   += [Literal(elem.text) for elem in filler_data.iter("ManufacturerOrSourceName")]
+
+    # Check that matrix and filler components are properly constructed
+    def build_component_dict(component):
+        material = dict()
+        material["name"]        = component.find(".//ChemicalName")
+        material["abbrev"]      = component.find(".//Abbreviation")
+        material["manufac"]     = component.find(".//ManufacturerOrSourceName")
+        material["trade"]    = component.find(".//TradeName")
+        for key, value in material.items():
+            if value is not None:
+                material[key] = Literal(material[key].text)
+        return material
+        
+    expected_data["compiled_material"]  = [build_component_dict(component) for component in root.findall(".//MatrixComponent")]
+    expected_data["compiled_material"] += [build_component_dict(component) for component in root.findall(".//FillerComponent")]
+
+    # def extract_choose_parameter(section):
+    #     if section is None:
+    #         return
+    #     for param in section.findall(".//ChooseParameter"):
+    #         for component in param:
+    #             action = component.tag
+
 
     # Table data
     def extract_table_data(data_tag):
+        if data_tag is None:
+            return
+        if data_tag.find("data") is None:
+            return 
         table = dict()  # Holds the description, headers, and dataframe
         table["description"] = data_tag.find(".//description").text
         table["headers"] = [elem.text for elem in data_tag.find(".//headers").iter("column")]
@@ -290,6 +321,51 @@ def test_temperatures(runner, expected_temperatures=None):
     runner.assertCountEqual(expected_temperatures, temperatures)
     print("Expected Temperatures Found")
 
+
+def test_abbreviations(runner, expected_abbreviations=None):
+    print("Checking if the expected abbreviations are present")
+    abbreviations = list(runner.app.db.objects(None, URIRef("http://nanomine.org/ns/Abberviation")))
+    if expected_abbreviations is None:
+        expected_abbreviations = runner.expected_data["abbrev"]
+    runner.assertCountEqual(expected_abbreviations, abbreviations)
+    print("Expected Abbreviations Found")
+
+
+def test_manufacturers(runner, expected_manufacturers=None):
+    print("Checking if the expected manufactures are present")
+    manufacturers = list(runner.app.db.objects(None, URIRef("http://nanomine.org/ns/Manufacturer")))
+    if expected_manufacturers is None:
+        expected_manufacturers = runner.expected_data["manufac"]
+    runner.assertCountEqual(expected_manufacturers, manufacturers)
+    print("Expected Manufactures Found")
+
+
+def test_complete_material(runner, expected_materials=None):
+    materials = runner.app.db.query(
+    """
+    SELECT ?abbrev ?manufac ?name ?trade
+    WHERE {
+        ?mat <http://semanticscience.org/resource/hasRole> ?bnode_mat .
+        ?mat a ?compound .
+        { ?bnode_mat a <http://nanomine.org/ns/Matrix> } UNION { ?bnode_mat a <http://nanomine.org/ns/Filler> } .
+        OPTIONAL {?compound <http://nanomine.org/ns/Abbreviation> ?abbrev} .
+        OPTIONAL {?compound <http://nanomine.org/ns/Manufacturer> ?manufac} .
+        OPTIONAL {?compound <http://www.w3.org/2000/01/rdf-schema#label> ?name} .
+        OPTIONAL {?compound <http://nanomine.org/ns/TradeName> ?trade} .
+    }
+    """
+    )
+    material_properties = list()
+    for material in materials:
+        material_dict = dict()
+        for key in material.labels.keys():
+            material_dict[key] = material[key]
+        material_properties.append(material_dict)
+    
+    if expected_materials is None:
+        expected_materials = runner.expected_data["compiled_material"]
+
+    runner.assertCountEqual(expected_materials, material_properties)
 
 # def construct_table():
 #     data = runner.app.db.query(

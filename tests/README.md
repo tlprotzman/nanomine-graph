@@ -14,6 +14,7 @@
   * Filler Chemical Trade Names
   * Devices
   * Temperatures
+  * Material Properties Combined (ensuring properties are properly associated)
 * This list will be expanded as new automated tests are developed
 
 * The autoparser and all actual testing code are in `ingest_tester.py`

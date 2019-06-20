@@ -46,4 +46,13 @@ class IngestTestTests(IngestTestSetup):
     def test_temperatures(self):
         ingest_tester.test_temperatures(self)
 
+    def test_abbreviations(self):
+        ingest_tester.test_abbreviations(self)
+
+    def test_manufacturers(self):
+        ingest_tester.test_manufacturers(self)
+
+    def test_complete_material(self):
+        ingest_tester.test_complete_material(self)
+
 

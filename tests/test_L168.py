@@ -1,10 +1,11 @@
 from . import ingest_tester
 from . import test_template
 from testcase import WhyisTestCase
+import rdflib
 
 file_under_test = "L168_S4_Luo_2013"
 
-class L168Test(test_template.IngestTestTests):
+class L168Test(test_template.IngestTestSetup):
     @classmethod
     def setUpClass(cls):
         cls.file_under_test = file_under_test
@@ -39,3 +40,22 @@ class L168Test(test_template.IngestTestTests):
         ingest_tester.test_devices(self, expected_devices)
         ingest_tester.test_devices(self)
 
+    def test_abbreviations(self):
+        expected_abbreviations = ["PVDF",
+                                  "AgNO3",
+                                  "BaTiO3"]
+        expected_abbreviations = [rdflib.Literal(v) for v in expected_abbreviations]
+        ingest_tester.test_abbreviations(self, expected_abbreviations)
+        ingest_tester.test_abbreviations(self)
+
+    def test_manufacturers(self):
+        expected_manufacturers = ["Shanghai 3F Co.",
+                                  "Guoyao Chemical Co. China",
+                                  "Shanghai Lingfeng Chemical Co. China",
+                                  "Shangdong Guoci Functional Materials Co., China"]
+        expected_manufacturers = [rdflib.Literal(v) for v in expected_manufacturers]
+        # ingest_tester.test_manufacturers(self, expected_manufacturers)
+        ingest_tester.test_manufacturers(self)
+
+    def test_complete_material(self):
+        ingest_tester.test_complete_material(self)
