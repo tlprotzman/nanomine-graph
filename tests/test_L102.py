@@ -1,6 +1,5 @@
 from . import ingest_tester
 from . import test_template
-from testcase import WhyisTestCase
 import rdflib
 
 

@@ -6,7 +6,7 @@
 from . import ingest_tester
 from . import test_template
 
-file_under_test = "<FILENAME HERE>"
+file_under_test = "L126_S4_Thomas_2009"
 
 class IngestTestRunner(test_template.IngestTestTests):
     first_run = bool()

@@ -1,6 +1,5 @@
 from . import ingest_tester
 from . import test_template
-from testcase import WhyisTestCase
 import rdflib
 
 file_under_test = "L168_S4_Luo_2013"
