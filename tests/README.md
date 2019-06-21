@@ -15,6 +15,7 @@
   * Devices
   * Temperatures
   * Material Properties Combined (ensuring properties are properly associated)
+  * Filler Processing (Basic, needs to be expanded)
 * This list will be expanded as new automated tests are developed
 
 * The autoparser and all actual testing code are in `ingest_tester.py`

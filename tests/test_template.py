@@ -55,4 +55,5 @@ class IngestTestTests(IngestTestSetup):
     def test_complete_material(self):
         ingest_tester.test_complete_material(self)
 
-
+    def test_filler_processing(self):
+        ingest_tester.test_filler_processing(self)

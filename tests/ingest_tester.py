@@ -116,20 +116,25 @@ def autoparse(file_under_test):
     expected_data["compiled_material"] += [build_component_dict(
         component) for component in root.findall(".//FillerComponent")]
 
-    # def extract_choose_parameter(section):
-    #     if section is None:
-    #         return
-    #     for param in section.findall(".//ChooseParameter"):
-    #         for component in param:
-    #             action = component.tag
+    def extract_choose_parameter(section):
+        if section is None:
+            return None
+        order = list()
+        for param in section.findall(".//ChooseParameter"):
+            for component in param:
+                order.append(component.tag)
+        return order
+
+    expected_data["filler_processing"] = extract_choose_parameter(root.find(".//FillerProcessing"))
+    expected_data["solution_processing"] = extract_choose_parameter(root.find(".//SolutionProcessing"))
 
     # Table data
 
     def extract_table_data(data_tag):
         if data_tag is None:
-            return
+            return None
         if data_tag.find("data") is None:
-            return
+            return None
         table = dict()  # Holds the description, headers, and dataframe
         table["description"] = data_tag.find(".//description").text
         table["headers"] = [elem.text for elem in data_tag.find(
@@ -143,14 +148,14 @@ def autoparse(file_under_test):
         table["data"] = pd.DataFrame(data)
         return table
 
-    # expected_data["Dielectric_Real_Permittivity"] = [extract_table_data(
-    #     data) for data in root.iter("Dielectric_Real_Permittivity")]
-    # expected_data["Dielectric_Loss_Permittivity"] = [extract_table_data(
-    #     data) for data in root.iter("Dielectric_Loss_Permittivity")]
-    # expected_data["Dielectric_Loss_Tangent"] = [extract_table_data(
-    #     data) for data in root.iter("Dielectric_Loss_Tangent")]
-    # expected_data["ElectricConductivity"] = [extract_table_data(
-    #     data) for data in root.iter("ElectricConductivity")]
+    expected_data["Dielectric_Real_Permittivity"] = [extract_table_data(
+        data) for data in root.iter("Dielectric_Real_Permittivity")]
+    expected_data["Dielectric_Loss_Permittivity"] = [extract_table_data(
+        data) for data in root.iter("Dielectric_Loss_Permittivity")]
+    expected_data["Dielectric_Loss_Tangent"] = [extract_table_data(
+        data) for data in root.iter("Dielectric_Loss_Tangent")]
+    expected_data["ElectricConductivity"] = [extract_table_data(
+        data) for data in root.iter("ElectricConductivity")]
 
     # Other Data
     expected_data["equipment"] = [elem.text.lower()
@@ -394,29 +399,48 @@ def test_complete_material(runner, expected_materials=None):
 
     runner.assertCountEqual(expected_materials, material_properties)
 
-# def construct_table():
-#     data = runner.app.db.query(
-#     """
-#     SELECT ?p1 ?p2 WHERE {
-#         ?property a {} .
-#         ?property sio:hasAttribute ?p1_bnode
-#         ?p1_bnode a {} .
-#         ?p2_bnode a {} .
-#     }
-#     """
-#     )
+
+def construct_table(runner):
+    raise NotImplementedError
+    data = runner.app.db.query(
+    """
+    SELECT ?p1 ?p2 WHERE {
+        ?property a {} .
+        ?property sio:hasAttribute ?p1_bnode
+        ?p1_bnode a {} .
+        ?p2_bnode a {} .
+    }
+    """
+    )
 
 
-# def test_dielectric_real_permittivity(runner, expected_data=None):
-#     print("Checking if the Dielectric Real Permittivity Table is as expected")
-#     data = runner.app.db.query(
-#     """
-#     SELECT ?frequency ?lossTangent? WHERE {
-#         ?bnode_freq a <http://nanomine.org/ns/FrequencyHZ> .
-#         ?bnode_loss a <http://nanomine.org/ns/DielectricLossTangent> .
-#     }
-#     """
-#     )
+def test_dielectric_real_permittivity(runner, expected_data=None):
+    raise NotImplementedError
+    print("Checking if the Dielectric Real Permittivity Table is as expected")
+    data = runner.app.db.query(
+    """
+    SELECT ?frequency ?lossTangent? WHERE {
+        ?bnode_freq a <http://nanomine.org/ns/FrequencyHZ> .
+        ?bnode_loss a <http://nanomine.org/ns/DielectricLossTangent> .
+    }
+    """
+    )
+
+
+def test_filler_processing(runner, expected_process=None):
+    print("Testing Filler Processing")
+    process = runner.app.db.query(
+    """
+    SELECT ?method
+    WHERE {
+        ?sequence a <http://nanomine.org/ns/ExperimentalProcedure> .
+        ?sequence <http://semanticscience.org/resource/hasPart> ?method .
+    }
+    """
+    )
+    if expected_process is None:
+        expected_process = runner.expected_data["filler_processing"]
+    runner.assertCountEqual(expected_process, process)
 
 
 def print_triples(runner):
