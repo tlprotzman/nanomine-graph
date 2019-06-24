@@ -3,3 +3,4 @@
 /data/*.setl.ttl
 .vscode
 tests/output.txt
+tests/ontology_spreadsheet/

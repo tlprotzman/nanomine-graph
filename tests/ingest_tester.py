@@ -172,8 +172,8 @@ def autoparse(file_under_test):
         expected_data["temps"] += [rdflib.Literal(val.text, datatype=rdflib.XSD.double)
                                    for val in node.iter("value")]
 
-    temp.close()
-    return expected_data
+    # temp.close()
+    return root, expected_data
 
 
 def test_nanocomposites(runner):

@@ -1,3 +1,4 @@
+from . import test_from_spreadsheet
 from . import ingest_tester
 from testcase import WhyisTestCase
 
@@ -7,7 +8,8 @@ class IngestTestSetup(WhyisTestCase):
     def setUpClass(cls):
         print("Setting Up Class")
         cls.maxDiff = None
-        cls.expected_data = ingest_tester.autoparse(cls.file_under_test)
+        cls.xml, cls.expected_data = ingest_tester.autoparse(cls.file_under_test)
+        cls.df = test_from_spreadsheet.load_spreadsheet("/apps/nanomine-graph/tests/ontology_spreadsheet/Material.csv")
 
     def setUp(self):
         ingest_tester.setUp(self, self.file_under_test)
