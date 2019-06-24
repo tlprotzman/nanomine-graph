@@ -60,6 +60,22 @@ class L102Test(test_template.IngestTestSetup):
         expected_names = []
         ingest_tester.test_filler_trade_names(self, expected_names)
         ingest_tester.test_filler_trade_names(self)
+
+    def test_complete_material(self):
+        expected_material = list()
+        expected_material.append({"abbrev": rdflib.Literal("COC"),
+                                  "manufac": rdflib.Literal("Ticona GmbH, Germany"),
+                                  "name": rdflib.Literal("cyclo olefin copolymer"),
+                                  "trade": rdflib.Literal("Topas 8007S-04")})
+        
+        expected_material.append({"abbrev": rdflib.Literal("BST"),
+                                  "manufac": rdflib.Literal("Sigma&#8211;Aldrich Chemie GmbH, Germany"),
+                                  "name": rdflib.Literal("barium strontium titanate"),
+                                  "trade": None})
+
+        ingest_tester.test_complete_material(self, expected_material)
+
+                        
  
 
 

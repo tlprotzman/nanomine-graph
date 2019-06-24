@@ -80,7 +80,7 @@ def autoparse(file_under_test):
     # Matrix Data
     # matrix_data = next(root.iter("Matrix"))
     expected_data["m_name"] = [rdflib.Literal(elem.text)
-                               for elem in root.iter(".//Matrix//ChemicalName")]
+                               for elem in root.findall(".//Matrix//ChemicalName")]
     expected_data["m_trd_name"] = [
         rdflib.Literal(elem.text) for elem in root.iter(".//Matrix//TradeName")]
     expected_data["abbrev"] = [rdflib.Literal(elem.text)
@@ -91,7 +91,7 @@ def autoparse(file_under_test):
     # Filler data
     # filler_data = next(root.iter("Filler"))
     expected_data["f_name"] = [rdflib.Literal(elem.text)
-                               for elem in root.iter(".//Filler//ChemicalName")]
+                               for elem in root.findall(".//Filler//ChemicalName")]
     expected_data["f_trd_name"] = [
         rdflib.Literal(elem.text) for elem in root.iter(".//Filler//TradeName")]
     expected_data["abbrev"] += [rdflib.Literal(elem.text)
@@ -440,7 +440,7 @@ def test_filler_processing(runner, expected_process=None):
     )
     if expected_process is None:
         expected_process = runner.expected_data["filler_processing"]
-    runner.assertCountEqual(expected_process, process)
+    runner.assertCountEqual(expected_process, process)  # TODO figure out how to query ordering in process order
 
 
 def print_triples(runner):
